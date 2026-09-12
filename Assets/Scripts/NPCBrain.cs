@@ -26,6 +26,7 @@ public class NPCBrain : MonoBehaviour
 
     // Challenge 1
     [SerializeField]
+    [Min(0f)]
     private float waitDuration = 2f;
 
     [SerializeField]
@@ -300,9 +301,17 @@ public class NPCBrain : MonoBehaviour
             currentState
         );
 
+        if (currentState != NPCState.Patrol)
+        {
+            isWaitingAtPatrolPoint = false;
+            waitTimer = 0f;
+        }
+
         if (currentState ==
             NPCState.Patrol)
         {
+            isWaitingAtPatrolPoint = false;
+            waitTimer = 0f;
             GoToCurrentPatrolPoint();
         }
     }
