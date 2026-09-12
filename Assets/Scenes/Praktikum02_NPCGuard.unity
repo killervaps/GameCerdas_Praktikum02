@@ -979,6 +979,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   moveSpeed: 5
+  noiseRadius: 7
+  noiseInterval: 0.35
   rotationSpeed: 10
 --- !u!4 &904765295 stripped
 Transform:
@@ -1677,6 +1679,7 @@ MonoBehaviour:
   chaseSpeed: 4
   searchDuration: 4
   searchTolerance: 0.8
+  hearingRadius: 7
   searchRotationSpeed: 120
   searchTurnDuration: 1
   currentState: 0

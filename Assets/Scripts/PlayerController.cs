@@ -2,11 +2,19 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public static event System.Action<Vector3, float> NoiseMade;
+
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 5f;
 
+    [SerializeField] private float noiseRadius = 10f;
+
+    [SerializeField] private float noiseInterval = 0.35f;
+
     [Header("Rotation Settings")]
     [SerializeField] private float rotationSpeed = 10f;
+
+    private float noiseTimer;
 
     private void Update()
     {
@@ -23,6 +31,21 @@ public class PlayerController : MonoBehaviour
             0f,
             vertical
         ).normalized;
+
+        if (movement != Vector3.zero)
+        {
+            noiseTimer -= Time.deltaTime;
+
+            if (noiseTimer <= 0f)
+            {
+                NoiseMade?.Invoke(
+                    transform.position,
+                    noiseRadius
+                );
+
+                noiseTimer = noiseInterval;
+            }
+        }
 
         // Gerakkan Player
         transform.position +=
@@ -43,5 +66,14 @@ public class PlayerController : MonoBehaviour
                     rotationSpeed * Time.deltaTime
                 );
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(
+            transform.position,
+            noiseRadius
+        );
     }
 }

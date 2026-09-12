@@ -45,6 +45,9 @@ public class NPCBrain : MonoBehaviour
     private float searchTolerance = 0.8f;
 
     [SerializeField]
+    private float hearingRadius = 10f;
+
+    [SerializeField]
     private float searchRotationSpeed = 120f;
 
     [SerializeField]
@@ -80,6 +83,20 @@ public class NPCBrain : MonoBehaviour
     private float waitTimer; //challenge 1
 
     private bool isWaitingAtPatrolPoint;
+
+    private Vector3 heardNoisePosition;
+
+    private bool hasHeardNoise;
+
+    private void OnEnable()
+    {
+        PlayerController.NoiseMade += HearNoise;
+    }
+
+    private void OnDisable()
+    {
+        PlayerController.NoiseMade -= HearNoise;
+    }
 
     private void Start()
     {
@@ -128,6 +145,21 @@ public class NPCBrain : MonoBehaviour
                 NPCState.Chase
             );
 
+            return;
+        }
+
+        if (hasHeardNoise &&
+            currentState != NPCState.Chase)
+        {
+            lastKnownPosition = heardNoisePosition;
+            hasLastKnownPosition = true;
+            hasHeardNoise = false;
+
+            searchTimer = searchDuration;
+            searchTurnTimer = searchTurnDuration;
+            searchTurnDirection = -1f;
+
+            ChangeState(NPCState.Search);
             return;
         }
 
@@ -360,6 +392,27 @@ public class NPCBrain : MonoBehaviour
         }
     }
 
+    private void HearNoise(
+        Vector3 noisePosition,
+        float noiseRadius)
+    {
+        if (currentState == NPCState.Chase)
+        {
+            return;
+        }
+
+        float effectiveRadius =
+            Mathf.Min(noiseRadius, hearingRadius);
+
+        if (Vector3.Distance(
+                transform.position,
+                noisePosition) <= effectiveRadius)
+        {
+            heardNoisePosition = noisePosition;
+            hasHeardNoise = true;
+        }
+    }
+
     private void UpdateStateIndicator()
     {
         if (stateIndicator == null)
@@ -393,6 +446,26 @@ public class NPCBrain : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(
+            transform.position,
+            hearingRadius
+        );
+
+        if (hasHeardNoise)
+        {
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawSphere(
+                heardNoisePosition,
+                0.25f
+            );
+
+            Gizmos.DrawLine(
+                transform.position,
+                heardNoisePosition
+            );
+        }
+
         switch (currentState)
         {
             case NPCState.Patrol:
