@@ -1490,6 +1490,7 @@ MonoBehaviour:
   - {fileID: 2039183185}
   - {fileID: 1297186575}
   waypointTolerance: 0.7
+  waitDuration: 2
   patrolSpeed: 2
   chaseSpeed: 4
   searchDuration: 4

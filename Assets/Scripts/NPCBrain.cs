@@ -24,6 +24,10 @@ public class NPCBrain : MonoBehaviour
     [SerializeField]
     private float waypointTolerance = 0.7f;
 
+    // Challenge 1
+    [SerializeField]
+    private float waitDuration = 2f;
+
     [SerializeField]
     private float patrolSpeed = 2f;
 
@@ -55,6 +59,10 @@ public class NPCBrain : MonoBehaviour
     private bool hasLastKnownPosition;
 
     private float searchTimer;
+
+    private float waitTimer; //challenge 1
+
+    private bool isWaitingAtPatrolPoint;
 
     private void Start()
     {
@@ -175,10 +183,17 @@ public class NPCBrain : MonoBehaviour
             return;
         }
 
-        if (!agent.pathPending &&
-            agent.remainingDistance <=
-            waypointTolerance)
+        if (isWaitingAtPatrolPoint)
         {
+            waitTimer -= Time.deltaTime;
+
+            if (waitTimer > 0f)
+            {
+                return;
+            }
+
+            isWaitingAtPatrolPoint = false;
+
             patrolIndex++;
 
             if (patrolIndex >=
@@ -188,6 +203,16 @@ public class NPCBrain : MonoBehaviour
             }
 
             GoToCurrentPatrolPoint();
+            return;
+        }
+
+        if (!agent.pathPending &&
+            agent.remainingDistance <=
+            waypointTolerance)
+        {
+            isWaitingAtPatrolPoint = true;
+            waitTimer = waitDuration;
+            agent.ResetPath();
         }
     }
 
