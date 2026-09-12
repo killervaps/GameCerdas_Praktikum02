@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using TMPro;
 
 public class NPCBrain : MonoBehaviour
 {
@@ -54,6 +55,10 @@ public class NPCBrain : MonoBehaviour
     [SerializeField]
     private NPCState currentState;
 
+    [Header("State Indicator")]
+    [SerializeField]
+    private TMP_Text stateIndicator;
+
     private NPCState previousState;
 
     private int patrolIndex = 0;
@@ -81,6 +86,7 @@ public class NPCBrain : MonoBehaviour
         currentState = NPCState.Patrol;
         previousState = currentState;
 
+        UpdateStateIndicator();
         GoToCurrentPatrolPoint();
     }
 
@@ -345,7 +351,39 @@ public class NPCBrain : MonoBehaviour
         {
             isWaitingAtPatrolPoint = false;
             waitTimer = 0f;
+            UpdateStateIndicator();
             GoToCurrentPatrolPoint();
+        }
+        else
+        {
+            UpdateStateIndicator();
+        }
+    }
+
+    private void UpdateStateIndicator()
+    {
+        if (stateIndicator == null)
+        {
+            return;
+        }
+
+        switch (currentState)
+        {
+            case NPCState.Chase:
+                stateIndicator.text = "!";
+                stateIndicator.color = Color.red;
+                stateIndicator.gameObject.SetActive(true);
+                break;
+
+            case NPCState.Search:
+                stateIndicator.text = "?";
+                stateIndicator.color = Color.yellow;
+                stateIndicator.gameObject.SetActive(true);
+                break;
+
+            default:
+                stateIndicator.gameObject.SetActive(false);
+                break;
         }
     }
 
