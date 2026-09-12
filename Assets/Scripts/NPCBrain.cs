@@ -43,6 +43,13 @@ public class NPCBrain : MonoBehaviour
     [SerializeField]
     private float searchTolerance = 0.8f;
 
+    [SerializeField]
+    private float searchRotationSpeed = 120f;
+
+    [SerializeField]
+    [Min(0.1f)]
+    private float searchTurnDuration = 1f;
+
     [Header("Debug")]
     [SerializeField]
     private NPCState currentState;
@@ -60,6 +67,10 @@ public class NPCBrain : MonoBehaviour
     private bool hasLastKnownPosition;
 
     private float searchTimer;
+
+    private float searchTurnTimer;
+
+    private float searchTurnDirection = -1f;
 
     private float waitTimer; //challenge 1
 
@@ -122,6 +133,11 @@ public class NPCBrain : MonoBehaviour
         {
             searchTimer =
                 searchDuration;
+
+            searchTurnTimer =
+                searchTurnDuration;
+
+            searchTurnDirection = -1f;
 
             ChangeState(
                 NPCState.Search
@@ -258,18 +274,35 @@ public class NPCBrain : MonoBehaviour
         agent.speed =
             patrolSpeed;
 
-        agent.SetDestination(
-            lastKnownPosition
+        if (agent.pathPending ||
+            agent.remainingDistance > searchTolerance)
+        {
+            agent.SetDestination(
+                lastKnownPosition
+            );
+
+            return;
+        }
+
+        agent.ResetPath();
+
+        searchTimer -=
+            Time.deltaTime;
+
+        transform.Rotate(
+            Vector3.up,
+            searchTurnDirection *
+            searchRotationSpeed *
+            Time.deltaTime
         );
 
-        if (!agent.pathPending &&
-            agent.remainingDistance <=
-            searchTolerance)
-        {
-            searchTimer -=
-                Time.deltaTime;
+        searchTurnTimer -=
+            Time.deltaTime;
 
-            agent.ResetPath();
+        if (searchTurnTimer <= 0f)
+        {
+            searchTurnDirection *= -1f;
+            searchTurnTimer = searchTurnDuration;
         }
     }
 

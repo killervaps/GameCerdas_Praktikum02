@@ -1495,6 +1495,8 @@ MonoBehaviour:
   chaseSpeed: 4
   searchDuration: 4
   searchTolerance: 0.8
+  searchRotationSpeed: 120
+  searchTurnDuration: 1
   currentState: 0
 --- !u!1 &2133105912
 GameObject:
